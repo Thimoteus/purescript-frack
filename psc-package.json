@@ -1,0 +1,15 @@
+{
+    "name": "purescript-frack",
+    "set": "master",
+    "source": "https://github.com/Thimoteus/package-sets.git",
+    "depends": [
+        "integers",
+        "arraybuffer",
+        "canvas",
+        "math",
+        "psci-support",
+        "console",
+        "eff",
+        "prelude"
+    ]
+}
