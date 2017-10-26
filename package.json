@@ -1,0 +1,32 @@
+{
+  "name": "purescript-frack",
+  "version": "1.0.0",
+  "description": "it's in the fracking colors",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "dependencies": {
+    "canvas": "^1.6.7"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "pulp test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Thimoteus/purescript-frack.git"
+  },
+  "keywords": [
+    "frack",
+    "fractal",
+    "purescript",
+    "canvas"
+  ],
+  "author": "thimoteus",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Thimoteus/purescript-frack/issues"
+  },
+  "homepage": "https://github.com/Thimoteus/purescript-frack#readme"
+}

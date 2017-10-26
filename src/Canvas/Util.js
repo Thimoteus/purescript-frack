@@ -17,13 +17,17 @@ exports.mutateData = function (ctx) {
   }
 }
 
-// [r0,g0,b0,a0,r1,g1,b1,a1,...,r_4*width-1,g_4*width-1,b_4*width-1,a_4*width-1
-// ,r_4*width,g_4*width,b_4*width,a_4*width,r_4*width+1,g_4*width+1,a_4*width+1]
-// therefore there are 4*width "columns"
-// yet only height "rows"
-// how do we get the column and row?
-// if index is bigger than 4*width, successively subtract 4*width from index
-// until it isn't. Number of subtractions is the row, remainder/4 is the
-// column.
-// f(x,y) = y + 4*x
-// g(n) = ((n - (n/(4*width)))/4, n/(4*width))
+exports.createNodeCanvas = function (width) {
+  return function (height) {
+    return function () {
+      var Canvas = require('canvas');
+      return new Canvas(width, height);
+    }
+  }
+}
+
+exports.createPngStream = function (canvas) {
+  return function () {
+    return canvas.pngStream();
+  }
+}

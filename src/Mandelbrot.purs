@@ -6,7 +6,7 @@ import Data.Complex (Complex, length, (^))
 import Data.Maybe (Maybe(..))
 
 maxCount :: Int
-maxCount = 100
+maxCount = 200
 
 mandelbrot :: Complex -> Complex -> Complex
 mandelbrot c x = x^2 + c

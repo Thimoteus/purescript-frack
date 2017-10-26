@@ -2,15 +2,16 @@ module Main where
 
 import Prelude
 
-import Canvas.Util (ColorChange, mutateData)
+import Canvas.Util (ColorChange, createNodeCanvas, createPngStream, mutateData)
 import Control.Monad.Eff (Eff)
-import Control.Monad.Eff.Console (CONSOLE)
-import Control.Monad.Eff.Exception (EXCEPTION, error, throwException)
 import Data.Complex (fromPoint)
 import Data.Int (round, toNumber)
 import Data.Maybe (Maybe(..), fromMaybe)
-import Graphics.Canvas (CANVAS, getCanvasElementById, getContext2D, getImageData, putImageData, setCanvasDimensions)
+import Graphics.Canvas (CANVAS, getContext2D, getImageData, putImageData)
 import Mandelbrot (diverges, maxCount)
+import Node.FS (FS)
+import Node.FS.Stream (createWriteStream)
+import Node.Stream (pipe)
 
 minX :: Number
 minX = -2.5
@@ -18,26 +19,29 @@ minX = -2.5
 maxX :: Number
 maxX = 1.0
 
+dx :: Number
+dx = maxX - minX
+
 minY :: Number
-minY = -1.0
+minY = -maxY
 
 maxY :: Number
-maxY = 1.0
-
-dx :: Number
-dx = 0.01
+maxY = 9.0*dx/32.0
 
 dy :: Number
-dy = 0.01
+dy = maxY - minY
 
 width :: Int
-width = round (maxX - minX) * 200
+width = round (dx * sizeScaleFactor)
 
 height :: Int
-height = round (maxY - minY) * 200
+height = round (dy * sizeScaleFactor)
 
-scaleFactor :: Number
-scaleFactor = 2550.0 / toNumber maxCount
+sizeScaleFactor :: Number
+sizeScaleFactor = 400.0 -- 548.57
+
+colorScaleFactor :: Number
+colorScaleFactor = 1000.0 / toNumber maxCount
 
 getPosition :: Int -> Maybe {x :: Int, y :: Int}
 getPosition n
@@ -49,9 +53,9 @@ getPosition n
 
 unscalePosition :: {x :: Int, y :: Int} -> {x :: Number, y :: Number}
 unscalePosition unscaled =
-  let mx = (maxX - minX)/(toNumber width)
+  let mx = dx / toNumber width
       fx x = mx*x + minX
-      my = (maxY - minY)/(toNumber height)
+      my = dy / toNumber height
       fy y = my*y + minY
    in {x: fx (toNumber unscaled.x), y: fy (toNumber unscaled.y)}
 
@@ -60,22 +64,29 @@ changeColors i _ = fromMaybe {r: 0, g: 0, b: 0, a: 255} do
   z <- fromPoint <<< unscalePosition <$> getPosition i
   n <- diverges z
   let r = 0
-      g = 0
-      b = round (scaleFactor * toNumber n)
+      g = round (colorScaleFactor * toNumber n) `mod` 255
+      b = round (colorScaleFactor * toNumber n) `mod` 255
       a = 255
   pure {r, g, b, a}
 
-main :: forall e.
-  Eff
-  (canvas :: CANVAS, exception :: EXCEPTION, console :: CONSOLE | e)
-  Unit
+main :: Eff (canvas :: CANVAS, fs :: FS) Unit
 main = do
-  maybecanvas <- getCanvasElementById "canvas"
-  canvas <- case maybecanvas of
-    Just c -> pure c
-    _ -> throwException $ error "No canvas element detected"
-  canvas' <- setCanvasDimensions {width: toNumber width, height: toNumber height} canvas
-  ctx2d <- getContext2D canvas'
+  writestream <- createWriteStream "/home/evante/mandelbrot.png"
+  canvas <- createNodeCanvas (toNumber width) (toNumber height)
+  ctx2d <- getContext2D canvas
   imageData <- getImageData ctx2d 0.0 0.0 (toNumber width) (toNumber height)
   imageData' <- mutateData ctx2d imageData changeColors
-  void $ putImageData ctx2d imageData' 0.0 0.0
+  ctx2d' <- putImageData ctx2d imageData' 0.0 0.0
+  readstream <- createPngStream canvas
+  void $ pipe readstream writestream
+
+-- main = do
+--   maybecanvas <- getCanvasElementById "canvas"
+--   canvas <- case maybecanvas of
+--     Just c -> pure c
+--     _ -> throwException $ error "No canvas element detected"
+--   canvas' <- setCanvasDimensions {width: toNumber width, height: toNumber height} canvas
+--   ctx2d <- getContext2D canvas'
+--   imageData <- getImageData ctx2d 0.0 0.0 (toNumber width) (toNumber height)
+--   imageData' <- mutateData ctx2d imageData changeColors
+--   void $ putImageData ctx2d imageData' 0.0 0.0
