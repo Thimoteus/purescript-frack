@@ -38,7 +38,7 @@ height :: Int
 height = round (dy * sizeScaleFactor)
 
 sizeScaleFactor :: Number
-sizeScaleFactor = 400.0 -- 548.57
+sizeScaleFactor = 50.0 -- 548.57
 
 colorScaleFactor :: Number
 colorScaleFactor = 1000.0 / toNumber maxCount
@@ -71,7 +71,7 @@ changeColors i _ = fromMaybe {r: 0, g: 0, b: 0, a: 255} do
 
 main :: Eff (canvas :: CANVAS, fs :: FS) Unit
 main = do
-  writestream <- createWriteStream "/home/evante/mandelbrot.png"
+  writestream <- createWriteStream "./mandelbrot.png"
   canvas <- createNodeCanvas (toNumber width) (toNumber height)
   ctx2d <- getContext2D canvas
   imageData <- getImageData ctx2d 0.0 0.0 (toNumber width) (toNumber height)
