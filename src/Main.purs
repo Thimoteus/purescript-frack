@@ -38,7 +38,7 @@ height :: Int
 height = round (dy * sizeScaleFactor)
 
 sizeScaleFactor :: Number
-sizeScaleFactor = 50.0 -- 548.57
+sizeScaleFactor = 400.0 -- 548.57
 
 colorScaleFactor :: Number
 colorScaleFactor = 1000.0 / toNumber maxCount
